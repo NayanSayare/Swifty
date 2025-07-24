@@ -37,9 +37,18 @@ public struct NetworkResourceMetric {
 @objc public final class SwiftyInspector: UITableViewController {
     
     /**
-     The shared instance of the Swifty Inspector.
+     The shared instance of the Swifty Inspector. 
+     Creating the shared instance on the Main Thread, as SwiftyInspector is inherited by UITableViewController, and it hangs the screen loading if called from other thread.
     */
-    @objc public static let shared = SwiftyInspector()
+    @objc public static let shared: SwiftyInspector = {
+        if Thread.current.isMainThread {
+            return SwiftyInspector()
+        } else {
+            return DispatchQueue.main.sync {
+                SwiftyInspector()
+            }
+        }
+    }()
     
     /**
      Get the Swifty Inspector's View Controller.
